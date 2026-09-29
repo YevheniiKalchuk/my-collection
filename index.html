@@ -123,6 +123,7 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:26px 16px;borde
 <div class="mprice" id="mprice"></div>
 <div class="mgroups" id="mgroups"></div>
 <button class="gbtn" id="mhide" style="margin:4px 0 12px">Приховати з колекції</button>
+<button class="gbtn" id="mdel" style="margin:4px 0 12px 8px;color:#e08080;border-color:#7a3a3a">Видалити назавжди</button>
 <a class="nbu" id="murl" target="_blank" rel="noopener">Сторінка на сайті НБУ</a>
 </div></div></div></div>
 <footer>Фото та характеристики – з офіційних сайтів НБУ (coins.bank.gov.ua, bank.gov.ua) та Royal Mint (royalmint.com), станом на 28.09.2026</footer>
@@ -133,10 +134,10 @@ ser=document.getElementById('ser'),sort=document.getElementById('sort'),
 chips=document.getElementById('chips'),count=document.getElementById('count');
 // --- Мої групи та налаштування вигляду (зберігаються в цьому браузері) ---
 const LS='mycollection_v1';
-let store={groups:[],ig:{},view:'grid',main:{},hidden:[]};
+let store={groups:[],ig:{},view:'grid',main:{},hidden:[],deleted:[]};
 try{const _s=JSON.parse(localStorage.getItem(LS));if(_s&&typeof _s==='object'){store=Object.assign(store,_s);
 if(store.ig){const _nig={};Object.keys(store.ig).forEach(k=>{const _nk=(/^\d+$/.test(k)&&DATA[+k])?DATA[+k].uid:k;_nig[_nk]=store.ig[k];});store.ig=_nig;}
-if(!Array.isArray(store.hidden))store.hidden=[];if(typeof store.main!=='object'||!store.main)store.main={};}}catch(e){}
+if(!Array.isArray(store.hidden))store.hidden=[];if(!Array.isArray(store.deleted))store.deleted=[];if(typeof store.main!=='object'||!store.main)store.main={};}}catch(e){}
 function save(){try{localStorage.setItem(LS,JSON.stringify(store));}catch(e){}}
 let gfilter='';
 const gchips=document.getElementById('gchips'),gchipsrow=document.getElementById('gchipsrow');
@@ -148,7 +149,7 @@ document.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===b));re
 const series=[...new Set(DATA.map(d=>d.seriya).filter(s=>s&&s!=='—'))].sort((a,b)=>a.localeCompare(b,'uk'));
 ser.innerHTML='<option value="">Усі серії</option>'+series.map(s=>`<option>${s}</option>`).join('');
 function rows(){
-let r=DATA.filter(d=>!store.hidden.includes(d.uid)&&(!cat||d.cat===cat)&&(!ser.value||d.seriya===ser.value)&&(!gfilter||(store.ig[d.uid]||[]).includes(gfilter)));
+let r=DATA.filter(d=>!store.hidden.includes(d.uid)&&!store.deleted.includes(d.uid)&&(!cat||d.cat===cat)&&(!ser.value||d.seriya===ser.value)&&(!gfilter||(store.ig[d.uid]||[]).includes(gfilter)));
 const s=q.value.trim().toLowerCase();
 if(s)r=r.filter(d=>d.name.toLowerCase().includes(s));
 const k=sort.value;
@@ -162,7 +163,7 @@ function metaLine(d){return `${d.rik} · ${esc(d.metal_short)} · ${d.nominal===
 function cover(d){return (d.photos[store.main[d.uid]]||d.photos[0]).src;}
 function render(){
 const r=rows();
-count.textContent=`Показано ${r.length} з ${DATA.length - store.hidden.length}`;
+count.textContent=`Показано ${r.length} з ${DATA.length - store.hidden.length - store.deleted.length}`;
 const hbtn0=document.getElementById('hbtn');if(hbtn0)hbtn0.style.display=store.hidden.length?'':'none';
 const list=store.view==='list';
 grid.classList.toggle('list',list);
@@ -207,6 +208,8 @@ arr=c.checked?[...new Set([...arr,gid])]:arr.filter(x=>x!==gid);
 if(arr.length)store.ig[d.uid]=arr;else delete store.ig[d.uid];save();});}
 else{mg.style.display='none';mg.innerHTML='';}
 document.getElementById('mhide').onclick=()=>{if(confirm('Приховати «'+d.name+'» з колекції?')){if(!store.hidden.includes(d.uid))store.hidden.push(d.uid);save();document.getElementById('mback').classList.remove('open');render();}};
+document.getElementById('mdel').onclick=()=>{if(confirm('Видалити «'+d.name+'» з колекції назавжди?
+Позиція зникне з сайту в цьому браузері. Щоб прибрати її з основного списку – надішліть мені файл-бекап (кнопка «Експорт»).')){if(!store.deleted.includes(d.uid))store.deleted.push(d.uid);store.hidden=store.hidden.filter(u=>u!==d.uid);delete store.ig[d.uid];delete store.main[d.uid];save();document.getElementById('mback').classList.remove('open');render();}};
 document.getElementById('mback').classList.add('open');}
 document.getElementById('mclose').onclick=()=>document.getElementById('mback').classList.remove('open');
 document.getElementById('mback').onclick=e=>{if(e.target.id==='mback')e.target.classList.remove('open');};
@@ -243,7 +246,7 @@ vgrid.onclick=()=>setView('grid');vlist.onclick=()=>setView('list');
 const hbtn=document.getElementById('hbtn'),hpanel=document.getElementById('hpanel'),hpanelrow=document.getElementById('hpanelrow');
 hbtn.onclick=()=>{const open=hpanelrow.style.display==='none';hpanelrow.style.display=open?'':'none';if(open)renderHPanel();};
 function renderHPanel(){
-const hs=store.hidden.map(u=>DATA.find(d=>d.uid===u)).filter(Boolean);
+const hs=store.hidden.map(u=>DATA.find(d=>d.uid===u)).filter(d=>d&&!store.deleted.includes(d.uid));
 hpanel.innerHTML='<div class="gt" style="color:var(--mut);font-size:13px;margin-bottom:8px">Приховані позиції (не показуються у списку):</div><div class="glist">'
 +hs.map(d=>`<div class="gitem"><span>${esc(d.name)}</span><button data-back="${d.uid}">Повернути</button></div>`).join('')+'</div>'
 +(hs.length?'':'<div style="color:var(--mut)">Немає прихованих позицій</div>');
@@ -253,7 +256,7 @@ document.getElementById('expbtn').onclick=()=>{const blob=new Blob([JSON.stringi
 const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='mycollection-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000);};
 document.getElementById('impfile').onchange=e=>{const f=e.target.files[0];if(!f)return;
 const rd=new FileReader();rd.onload=()=>{try{const s=JSON.parse(rd.result);
-if(s&&Array.isArray(s.groups)){store=Object.assign({groups:[],ig:{},view:'grid'},s);save();gfilter='';
+if(s&&Array.isArray(s.groups)){store=Object.assign({groups:[],ig:{},view:'grid',main:{},hidden:[],deleted:[]},s);save();gfilter='';
 vgrid.classList.toggle('on',store.view!=='list');vlist.classList.toggle('on',store.view==='list');
 renderGChips();render();}else alert('Невірний файл бекапу');}catch(err){alert('Невірний файл бекапу');}};
 rd.readAsText(f);e.target.value='';};
