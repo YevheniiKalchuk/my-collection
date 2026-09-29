@@ -43,6 +43,30 @@ select{background:var(--card);border:1px solid var(--line);color:var(--txt);bord
 .thumbs{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;justify-content:center}
 .thumbs img{width:56px;height:56px;object-fit:contain;background:#fff;border-radius:6px;cursor:pointer;border:2px solid transparent;padding:2px}
 .thumbs img.on{border-color:var(--gold)}
+.viewbtns{display:flex;gap:6px}
+.vbtn{background:var(--card);border:1px solid var(--line);color:var(--mut);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:16px;line-height:1}
+.vbtn.on{color:var(--gold2);border-color:var(--gold)}
+.gbtn{background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 14px;cursor:pointer;font-size:14px}
+.gbtn:hover{border-color:var(--gold)}
+.gpanel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;width:100%}
+.grow{display:flex;gap:8px;margin-bottom:10px}
+.grow input[type=text]{flex:1;min-width:140px;background:#121417;border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 10px;font-size:14px}
+.glist{display:flex;flex-wrap:wrap}
+.gitem{display:flex;align-items:center;gap:8px;background:#121417;border:1px solid var(--line);border-radius:8px;padding:6px 6px 6px 12px;margin:4px;font-size:14px}
+.gitem small{color:var(--mut)}
+.gitem button{background:none;border:none;color:var(--mut);cursor:pointer;font-size:15px;padding:2px 6px}
+.gitem button:hover{color:var(--gold2)}
+#grid.list{display:block}
+.listrow{display:flex;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:8px;cursor:pointer}
+.listrow:hover{border-color:var(--gold)}
+.listrow img{width:64px;height:64px;object-fit:contain;background:#fff;border-radius:6px;flex:none}
+.listrow .lname{font-weight:600}
+.listrow .lmeta{color:var(--mut);font-size:13px;margin-top:3px}
+.listrow .lprice{margin-left:auto;color:var(--gold2);white-space:nowrap;font-weight:600}
+.mgroups{margin:12px 0}
+.mgroups .gt{color:var(--mut);font-size:13px;margin-bottom:6px}
+.mgroups label{display:inline-flex;align-items:center;gap:6px;background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:5px 12px;margin:3px;cursor:pointer;font-size:13px}
+.mgroups input{accent-color:var(--gold)}
 .minfo{padding:24px}
 .minfo h2{font-family:Georgia,serif;color:var(--gold2);font-size:21px;margin:0 0 4px;line-height:1.3}
 .mcat{color:var(--mut);font-size:13.5px;margin-bottom:14px}
@@ -59,10 +83,10 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:26px 16px;borde
 <body>
 <header>
 <h1>Моя нумізматична колекція</h1>
-<div class="sub">Пам'ятні монети, медалі та банкноти Національного банку України</div>
+<div class="sub">Монети, медалі, банкноти та зливки моєї колекції</div>
 <div class="stats">
-<div class="stat"><b>78</b><span>позицій</span></div>
-<div class="stat"><b>28&nbsp;200&nbsp;₴</b><span>вартість</span></div>
+<div class="stat"><b>81</b><span>позицій</span></div>
+<div class="stat"><b>33 000&nbsp;₴</b><span>вартість</span></div>
 <div class="stat"><b>2017–2026</b><span>роки випуску</span></div>
 </div>
 </header>
@@ -76,7 +100,14 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:26px 16px;borde
 <option value="price">Спочатку дорожчі</option>
 <option value="tir">За тиражем</option>
 </select>
-</div><div class="trow" style="margin-top:10px"><div class="chips" id="chips"></div></div></div>
+</div><div class="trow" style="margin-top:10px">
+<div class="viewbtns"><button id="vgrid" class="vbtn on" title="Сітка">▦</button><button id="vlist" class="vbtn" title="Список">☰</button></div>
+<button id="gbtn" class="gbtn">Мої групи</button>
+<button id="expbtn" class="gbtn" title="Зберегти мої групи та налаштування у файл">Експорт</button>
+<label class="gbtn" style="cursor:pointer">Імпорт<input type="file" id="impfile" accept=".json" hidden></label>
+</div><div class="trow" style="margin-top:10px"><div class="chips" id="chips"></div></div>
+<div class="trow" id="gchipsrow" style="margin-top:10px;display:none"><div class="chips" id="gchips"></div></div>
+<div class="trow" id="gpanelrow" style="margin-top:10px;display:none"><div class="gpanel" id="gpanel"></div></div></div>
 <div class="count" id="count"></div>
 <div class="grid" id="grid"></div>
 <div class="mback" id="mback"><div class="modal">
@@ -85,6 +116,7 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:26px 16px;borde
 <div class="minfo"><h2 id="mname"></h2><div class="mcat" id="mcat"></div>
 <table id="mtab"></table>
 <div class="mprice" id="mprice"></div>
+<div class="mgroups" id="mgroups"></div>
 <a class="nbu" id="murl" target="_blank" rel="noopener">Сторінка на сайті НБУ</a>
 </div></div></div></div>
 <footer>Фото та характеристики – з офіційних сайтів НБУ (coins.bank.gov.ua, bank.gov.ua) та Royal Mint (royalmint.com), станом на 28.09.2026</footer>
@@ -93,6 +125,13 @@ const DATA = [{"id": 0, "name": "«Українські народні казк�
 const grid=document.getElementById('grid'),q=document.getElementById('q'),
 ser=document.getElementById('ser'),sort=document.getElementById('sort'),
 chips=document.getElementById('chips'),count=document.getElementById('count');
+// --- Мої групи та налаштування вигляду (зберігаються в цьому браузері) ---
+const LS='mycollection_v1';
+let store={groups:[],ig:{},view:'grid'};
+try{const _s=JSON.parse(localStorage.getItem(LS));if(_s&&typeof _s==='object')store=Object.assign(store,_s);}catch(e){}
+function save(){try{localStorage.setItem(LS,JSON.stringify(store));}catch(e){}}
+let gfilter='';
+const gchips=document.getElementById('gchips'),gchipsrow=document.getElementById('gchipsrow');
 let cat='';
 const cats=[...new Set(DATA.map(d=>d.cat))];
 chips.innerHTML='<button class="chip on" data-c="">Усі</button>'+cats.map(c=>`<button class="chip" data-c="${c}">${c}</button>`).join('');
@@ -101,7 +140,7 @@ document.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===b));re
 const series=[...new Set(DATA.map(d=>d.seriya).filter(s=>s&&s!=='—'))].sort((a,b)=>a.localeCompare(b,'uk'));
 ser.innerHTML='<option value="">Усі серії</option>'+series.map(s=>`<option>${s}</option>`).join('');
 function rows(){
-let r=DATA.filter(d=>(!cat||d.cat===cat)&&(!ser.value||d.seriya===ser.value));
+let r=DATA.filter(d=>(!cat||d.cat===cat)&&(!ser.value||d.seriya===ser.value)&&(!gfilter||(store.ig[d.id]||[]).includes(gfilter)));
 const s=q.value.trim().toLowerCase();
 if(s)r=r.filter(d=>d.name.toLowerCase().includes(s));
 const k=sort.value;
@@ -111,15 +150,22 @@ if(k==='price')r=[...r].sort((a,b)=>b.price-a.price);
 if(k==='tir')r=[...r].sort((a,b)=>(parseInt(b.tyrazh)||0)-(parseInt(a.tyrazh)||0));
 return r;}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+function metaLine(d){return `${d.rik} · ${esc(d.metal_short)} · ${d.nominal==='—'?(d.cat==='Зливки'?'зливок':'медаль'):'номінал '+d.nominal+' ₴'}`;}
 function render(){
 const r=rows();
 count.textContent=`Показано ${r.length} з ${DATA.length}`;
+const list=store.view==='list';
+grid.classList.toggle('list',list);
+if(list){
+grid.innerHTML=r.map(d=>`<div class="listrow" data-id="${d.id}"><img loading="lazy" src="${d.img}" alt=""><div><div class="lname">${esc(d.name)}</div><div class="lmeta">${metaLine(d)}</div></div><div class="lprice">${d.price>0?d.price+' ₴':'ціна —'}</div></div>`).join('');
+}else{
 grid.innerHTML=r.map(d=>`<div class="card" data-id="${d.id}">
 <div class="ph"><img loading="lazy" src="${d.img}" alt="${esc(d.name)}"></div>
 <div class="info"><div class="name">${esc(d.name)}</div>
-<div class="meta">${d.rik} · ${esc(d.metal_short)} · ${d.nominal==='—'?'медаль':'номінал '+d.nominal+' ₴'}</div>
+<div class="meta">${metaLine(d)}</div>
 <div class="price">${d.price>0?d.price+' ₴':'ціна —'} <small>× ${d.qty}</small></div></div></div>`).join('');
-grid.querySelectorAll('.card').forEach(c=>c.onclick=()=>openM(+c.dataset.id));}
+}
+grid.querySelectorAll('[data-id]').forEach(c=>c.onclick=()=>openM(+c.dataset.id));}
 const F=[['Метал','metal'],['Маса, г','masa'],['Діаметр, мм','diametr'],['Гурт','gurt'],['Якість карбування','yakist'],['Тираж, шт.','tyrazh'],['Рік випуску','rik'],['Серія','seriya'],['Номінал','nominal'],['Художник(и)','hud'],['Скульптор(и)','skul']];
 function openM(id){const d=DATA.find(x=>x.id===id);
 const mi=document.getElementById('mimg'),th=document.getElementById('mthumbs');
@@ -133,13 +179,60 @@ document.getElementById('mcat').textContent=d.cat;
 document.getElementById('mtab').innerHTML=F.map(([k,v])=>`<tr><td class="k">${k}</td><td>${esc(d[v])}</td></tr>`).join('')
 +(d.note?`<tr><td class="k">Примітка</td><td>${esc(d.note)}</td></tr>`:'');
 document.getElementById('mprice').textContent=`Ціна: ${d.price>0?d.price+' ₴':'—'} · кількість: ${d.qty}`;
-document.getElementById('murl').href=d.url||'#';
-document.getElementById('murl').style.display=d.url?'':'none';
+const murl=document.getElementById('murl');
+murl.href=d.url||'#';murl.style.display=d.url?'':'none';
+murl.textContent=d.url&&d.url.includes('royalmint')?'Сторінка на сайті Royal Mint':'Сторінка на сайті НБУ';
+const mg=document.getElementById('mgroups');
+if(store.groups.length){mg.style.display='';
+mg.innerHTML='<div class="gt">Мої групи:</div>'+store.groups.map(g=>{const has=(store.ig[d.id]||[]).includes(g.id);
+return `<label><input type="checkbox" data-gid="${g.id}"${has?' checked':''}>${esc(g.name)}</label>`;}).join('');
+mg.querySelectorAll('input').forEach(c=>c.onchange=()=>{const gid=c.dataset.gid;let arr=store.ig[d.id]||[];
+arr=c.checked?[...new Set([...arr,gid])]:arr.filter(x=>x!==gid);
+if(arr.length)store.ig[d.id]=arr;else delete store.ig[d.id];save();});}
+else{mg.style.display='none';mg.innerHTML='';}
 document.getElementById('mback').classList.add('open');}
 document.getElementById('mclose').onclick=()=>document.getElementById('mback').classList.remove('open');
 document.getElementById('mback').onclick=e=>{if(e.target.id==='mback')e.target.classList.remove('open');};
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('mback').classList.remove('open');});
 [q,ser,sort].forEach(el=>el.oninput=render);
+// --- Групи: чіпси-фільтр ---
+function renderGChips(){
+if(!store.groups.length){gchipsrow.style.display='none';gchips.innerHTML='';return;}
+gchipsrow.style.display='';
+gchips.innerHTML='<button class="chip'+(gfilter===''?' on':'')+'" data-g="">Усі</button>'+store.groups.map(g=>`<button class="chip${gfilter===g.id?' on':''}" data-g="${g.id}">${esc(g.name)}</button>`).join('');}
+gchips.onclick=e=>{const b=e.target.closest('.chip');if(!b)return;gfilter=b.dataset.g;renderGChips();render();};
+// --- Групи: панель керування ---
+const gpanel=document.getElementById('gpanel'),gpanelrow=document.getElementById('gpanelrow');
+document.getElementById('gbtn').onclick=()=>{const open=gpanelrow.style.display==='none';gpanelrow.style.display=open?'':'none';if(open)renderGPanel();};
+function renderGPanel(){
+gpanel.innerHTML=`<div class="grow"><input type="text" id="gnew" placeholder="Нова група, напр. «Срібло»"><button class="gbtn" id="gadd">Додати</button></div><div class="glist">`
++store.groups.map(g=>{const n=Object.keys(store.ig).filter(k=>(store.ig[k]||[]).includes(g.id)).length;
+return `<div class="gitem"><span>${esc(g.name)} <small>· ${n}</small></span><button data-ren="${g.id}" title="Перейменувати">✎</button><button data-del="${g.id}" title="Видалити">×</button></div>`;}).join('')
++'</div><div style="color:var(--mut);font-size:12px;margin-top:8px">Групи та вигляд зберігаються в цьому браузері. «Експорт» зберігає їх у файл-бекап.</div>';
+document.getElementById('gadd').onclick=()=>{const v=document.getElementById('gnew').value.trim();if(!v)return;
+store.groups.push({id:'g'+Date.now().toString(36),name:v});save();renderGPanel();renderGChips();};
+document.getElementById('gnew').onkeydown=e=>{if(e.key==='Enter')document.getElementById('gadd').click();};
+gpanel.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{const id=b.dataset.del;
+store.groups=store.groups.filter(g=>g.id!==id);
+Object.keys(store.ig).forEach(k=>{store.ig[k]=store.ig[k].filter(x=>x!==id);if(!store.ig[k].length)delete store.ig[k];});
+if(gfilter===id)gfilter='';save();renderGPanel();renderGChips();render();});
+gpanel.querySelectorAll('[data-ren]').forEach(b=>b.onclick=()=>{const id=b.dataset.ren;const g=store.groups.find(x=>x.id===id);
+const v=prompt('Нова назва групи',g.name);if(v&&v.trim()){g.name=v.trim();save();renderGPanel();renderGChips();}});}
+// --- Вигляд: сітка / список ---
+const vgrid=document.getElementById('vgrid'),vlist=document.getElementById('vlist');
+function setView(v){store.view=v;save();vgrid.classList.toggle('on',v==='grid');vlist.classList.toggle('on',v==='list');render();}
+vgrid.onclick=()=>setView('grid');vlist.onclick=()=>setView('list');
+// --- Експорт / імпорт налаштувань ---
+document.getElementById('expbtn').onclick=()=>{const blob=new Blob([JSON.stringify(store)],{type:'application/json'});
+const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='mycollection-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000);};
+document.getElementById('impfile').onchange=e=>{const f=e.target.files[0];if(!f)return;
+const rd=new FileReader();rd.onload=()=>{try{const s=JSON.parse(rd.result);
+if(s&&Array.isArray(s.groups)){store=Object.assign({groups:[],ig:{},view:'grid'},s);save();gfilter='';
+vgrid.classList.toggle('on',store.view!=='list');vlist.classList.toggle('on',store.view==='list');
+renderGChips();render();}else alert('Невірний файл бекапу');}catch(err){alert('Невірний файл бекапу');}};
+rd.readAsText(f);e.target.value='';};
+renderGChips();
+vgrid.classList.toggle('on',store.view!=='list');vlist.classList.toggle('on',store.view==='list');
 render();
 </script>
 </body></html>
