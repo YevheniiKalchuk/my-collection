@@ -72,10 +72,6 @@ body:not(.editing) #mhide,body:not(.editing) #mdel,body:not(.editing) #mseries{d
 .listrow .lname{font-weight:600}
 .listrow .lmeta{color:var(--mut);font-size:13px;margin-top:3px}
 .listrow .lprice{margin-left:auto;color:var(--gold2);white-space:nowrap;font-weight:600}
-.mgroups{margin:12px 0}
-.mgroups .gt{color:var(--mut);font-size:13px;margin-bottom:6px}
-.mgroups label{display:inline-flex;align-items:center;gap:6px;background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:5px 12px;margin:3px;cursor:pointer;font-size:13px}
-.mgroups input{accent-color:var(--gold)}
 .mseries{margin:12px 0}
 .mseries .gt{color:var(--mut);font-size:13px;margin-bottom:6px}
 .mseries select{background:#121417;border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:7px 10px;font-size:14px;max-width:100%}
@@ -119,15 +115,12 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:26px 16px;borde
 </div><div class="trow" style="margin-top:10px">
 <div class="viewbtns"><button id="vgrid" class="vbtn on" title="Сітка">▦</button><button id="vlist" class="vbtn" title="Список">☰</button></div>
 <div class="langbtns"><button id="langUa" class="vbtn on">UA</button><button id="langEn" class="vbtn">EN</button></div>
-<button id="gbtn" class="gbtn">Мої групи</button>
 <button id="sbtn" class="gbtn">Серії</button>
 <button id="hbtn" class="gbtn" style="display:none">Приховані</button>
-<button id="expbtn" class="gbtn" title="Зберегти мої групи та налаштування у файл">Експорт</button>
+<button id="expbtn" class="gbtn" title="Зберегти мої налаштування у файл">Експорт</button>
 <label class="gbtn" style="cursor:pointer"><span id="implabel">Імпорт</span><input type="file" id="impfile" accept=".json" hidden></label>
 <button id="editbtn" class="gbtn" title="Редагування під кодом">🔒 <span id="editlabel">Редагування</span></button>
 </div><div class="trow" style="margin-top:10px"><div class="chips" id="chips"></div></div>
-<div class="trow" id="gchipsrow" style="margin-top:10px;display:none"><div class="chips" id="gchips"></div></div>
-<div class="trow" id="gpanelrow" style="margin-top:10px;display:none"><div class="gpanel" id="gpanel"></div></div>
 <div class="trow" id="hpanelrow" style="margin-top:10px;display:none"><div class="gpanel" id="hpanel"></div></div>
 <div class="trow" id="spanelrow" style="margin-top:10px;display:none"><div class="gpanel" id="spanel"></div></div></div>
 <div class="count" id="count"></div>
@@ -139,7 +132,6 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:26px 16px;borde
 <table id="mtab"></table>
 <div class="mdesc" id="mdesc"></div>
 <div class="mprice" id="mprice"></div>
-<div class="mgroups" id="mgroups"></div>
 <div class="mseries" id="mseries"></div>
 <button class="gbtn" id="mhide" style="margin:4px 0 12px">Приховати з колекції</button>
 <button class="gbtn" id="mdel" style="margin:4px 0 12px 8px;color:#e08080;border-color:#7a3a3a">Видалити назавжди</button>
@@ -159,8 +151,8 @@ ser=document.getElementById('ser'),sort=document.getElementById('sort'),
 chips=document.getElementById('chips'),count=document.getElementById('count');
 // --- Двомовність: українська / English ---
 const T={
-ua:{docTitle:'Моя нумізматична колекція',h1:'Моя нумізматична колекція',sub:'Монети, медалі, банкноти та зливки моєї колекції',stItems:'позицій',stValue:'вартість',stYears:'роки випуску',searchPh:'Пошук за назвою…',allSeries:'Усі серії',all:'Усі',sCat:'За каталогом',sYear:'Спочатку новіші',sName:'За назвою',sPrice:'Спочатку дорожчі',sTir:'За тиражем',gridV:'Сітка',listV:'Список',myGroups:'Мої групи',seriesB:'Серії',hiddenB:'Приховані',exportB:'Експорт',exportT:'Зберегти мої групи та налаштування у файл',importB:'Імпорт',priceNo:'ціна —',medalW:'медаль',bullionW:'зливок',priceL:'Ціна:',qtyL:'кількість:',groupsL:'Мої групи:',seriesL:'Серія:',resetB:'Скинути',hideB:'Приховати з колекції',delB:'Видалити назавжди',nbuPage:'Сторінка на сайті НБУ',rmPage:'Сторінка на сайті Royal Mint',editT:'Редагувати',editNameT:'Редагувати назву',editPriceT:'Редагувати ціну',editDescT:'Редагувати опис',resetT:'Скинути',resetNameT:'Скинути назву',resetPriceT:'Скинути ціну',newPrice:'Нова ціна, грн',newVal:'Нове значення',badNum:'Введіть число 0 або більше',descH:'Опис',addDesc:'Додати опис',noteH:'Примітка',mainPhotoT:'Зробити головним',gNewPh:'Нова група, напр. «Срібло»',gAdd:'Додати',gNote:'Групи та вигляд зберігаються в цьому браузері. «Експорт» зберігає їх у файл-бекап.',gRenT:'Перейменувати',gDelT:'Видалити',gNewName:'Нова назва групи',hTitle:'Приховані позиції (не показуються у списку):',hBack:'Повернути',hNone:'Немає прихованих позицій',sTitle:'Серії колекції (перейменування зберігається в цьому браузері):',sNewName:'Нова назва серії',badFile:'Невірний файл бекапу',footer:'Фото, характеристики та описи – з офіційних сайтів НБУ (coins.bank.gov.ua, bank.gov.ua) та Royal Mint (royalmint.com), станом на 29.09.2026',editB:'Редагування',lockB:'Завершити',codeTitle:'Введіть код доступу',codePh:'Код',codeOk:'Увійти',codeCancel:'Скасувати',codeWrong:'Невірний код'},
-en:{docTitle:'My Numismatic Collection',h1:'My Numismatic Collection',sub:'Coins, medals, banknotes and bullion from my collection',stItems:'items',stValue:'total value',stYears:'years of issue',searchPh:'Search by name…',allSeries:'All series',all:'All',sCat:'Catalog order',sYear:'Newest first',sName:'By name',sPrice:'Most expensive first',sTir:'By mintage',gridV:'Grid',listV:'List',myGroups:'My groups',seriesB:'Series',hiddenB:'Hidden',exportB:'Export',exportT:'Save my groups and settings to a file',importB:'Import',priceNo:'no price',medalW:'medal',bullionW:'bullion',priceL:'Price:',qtyL:'quantity:',groupsL:'My groups:',seriesL:'Series:',resetB:'Reset',hideB:'Hide from collection',delB:'Delete permanently',nbuPage:'NBU website page',rmPage:'Royal Mint website page',editT:'Edit',editNameT:'Edit name',editPriceT:'Edit price',editDescT:'Edit description',resetT:'Reset',resetNameT:'Reset name',resetPriceT:'Reset price',newPrice:'New price, UAH',newVal:'New value',badNum:'Enter a number 0 or greater',descH:'Description',addDesc:'Add description',noteH:'Note',mainPhotoT:'Set as main',gNewPh:'New group, e.g. "Silver"',gAdd:'Add',gNote:'Groups and view are stored in this browser. "Export" saves them to a backup file.',gRenT:'Rename',gDelT:'Delete',gNewName:'New group name',hTitle:'Hidden items (not shown in the list):',hBack:'Unhide',hNone:'No hidden items',sTitle:'Collection series (renames are stored in this browser):',sNewName:'New series name',badFile:'Invalid backup file',footer:'Photos, specifications and descriptions from the official NBU (coins.bank.gov.ua, bank.gov.ua) and Royal Mint (royalmint.com) websites, as of 29.09.2026',editB:'Edit',lockB:'Lock',codeTitle:'Enter access code',codePh:'Code',codeOk:'Unlock',codeCancel:'Cancel',codeWrong:'Wrong code'}};
+ua:{docTitle:'Моя нумізматична колекція',h1:'Моя нумізматична колекція',sub:'Монети, медалі, банкноти та зливки моєї колекції',stItems:'позицій',stValue:'вартість',stYears:'роки випуску',searchPh:'Пошук за назвою…',allSeries:'Усі серії',all:'Усі',sCat:'За каталогом',sYear:'Спочатку новіші',sName:'За назвою',sPrice:'Спочатку дорожчі',sTir:'За тиражем',gridV:'Сітка',listV:'Список',seriesB:'Серії',hiddenB:'Приховані',exportB:'Експорт',exportT:'Зберегти мої налаштування у файл',renT:'Перейменувати',importB:'Імпорт',priceNo:'ціна —',medalW:'медаль',bullionW:'зливок',priceL:'Ціна:',qtyL:'кількість:',seriesL:'Серія:',resetB:'Скинути',hideB:'Приховати з колекції',delB:'Видалити назавжди',nbuPage:'Сторінка на сайті НБУ',rmPage:'Сторінка на сайті Royal Mint',editT:'Редагувати',editNameT:'Редагувати назву',editPriceT:'Редагувати ціну',editDescT:'Редагувати опис',resetT:'Скинути',resetNameT:'Скинути назву',resetPriceT:'Скинути ціну',newPrice:'Нова ціна, грн',newVal:'Нове значення',badNum:'Введіть число 0 або більше',descH:'Опис',addDesc:'Додати опис',noteH:'Примітка',mainPhotoT:'Зробити головним',hTitle:'Приховані позиції (не показуються у списку):',hBack:'Повернути',hNone:'Немає прихованих позицій',sTitle:'Серії колекції (перейменування зберігається в цьому браузері):',sNewName:'Нова назва серії',badFile:'Невірний файл бекапу',footer:'Фото, характеристики та описи – з офіційних сайтів НБУ (coins.bank.gov.ua, bank.gov.ua) та Royal Mint (royalmint.com), станом на 29.09.2026',editB:'Редагування',lockB:'Завершити',codeTitle:'Введіть код доступу',codePh:'Код',codeOk:'Увійти',codeCancel:'Скасувати',codeWrong:'Невірний код'},
+en:{docTitle:'My Numismatic Collection',h1:'My Numismatic Collection',sub:'Coins, medals, banknotes and bullion from my collection',stItems:'items',stValue:'total value',stYears:'years of issue',searchPh:'Search by name…',allSeries:'All series',all:'All',sCat:'Catalog order',sYear:'Newest first',sName:'By name',sPrice:'Most expensive first',sTir:'By mintage',gridV:'Grid',listV:'List',seriesB:'Series',hiddenB:'Hidden',exportB:'Export',exportT:'Save my settings to a file',renT:'Rename',importB:'Import',priceNo:'no price',medalW:'medal',bullionW:'bullion',priceL:'Price:',qtyL:'quantity:',seriesL:'Series:',resetB:'Reset',hideB:'Hide from collection',delB:'Delete permanently',nbuPage:'NBU website page',rmPage:'Royal Mint website page',editT:'Edit',editNameT:'Edit name',editPriceT:'Edit price',editDescT:'Edit description',resetT:'Reset',resetNameT:'Reset name',resetPriceT:'Reset price',newPrice:'New price, UAH',newVal:'New value',badNum:'Enter a number 0 or greater',descH:'Description',addDesc:'Add description',noteH:'Note',mainPhotoT:'Set as main',hTitle:'Hidden items (not shown in the list):',hBack:'Unhide',hNone:'No hidden items',sTitle:'Collection series (renames are stored in this browser):',sNewName:'New series name',badFile:'Invalid backup file',footer:'Photos, specifications and descriptions from the official NBU (coins.bank.gov.ua, bank.gov.ua) and Royal Mint (royalmint.com) websites, as of 29.09.2026',editB:'Edit',lockB:'Lock',codeTitle:'Enter access code',codePh:'Code',codeOk:'Unlock',codeCancel:'Cancel',codeWrong:'Wrong code'}};
 function t(k){return (T[store.lang]&&T[store.lang][k])||T.ua[k]||k;}
 const MAP_EN={metal:{'нейзильбер (СuNi15Zn21)':'Nickel silver (CuNi15Zn21)','срібло (Ag 925)':'Silver (Ag 925)','срібло 999,9':'Silver 999.9','інша нумізматична продукція':'Other numismatic products'},yakist:{'анциркулейтед':'Uncirculated','спеціальний анциркулейтед':'Special uncirculated','інвестиційна (bullion)':'Bullion'},gurt:{'гладкий':'Smooth','гладкий із заглибленими написами':'Smooth with incuse inscriptions','рифлений':'Reeded'},seriya:{'Інші монети':'Other coins','Безсмертна моя Україно':'My Immortal Ukraine','Видатні особистості України':'Outstanding Personalities of Ukraine','Духовні скарби України':'Spiritual Treasures of Ukraine','Збройні Сили України':'Armed Forces of Ukraine','Знаки зодіаку':'Zodiac signs','Норвезькі боги (Norse Gods)':'Norse Gods','Східний календар':'Oriental calendar','Українська спадщина':'Ukrainian heritage','Флора і фауна':'Flora and fauna','Флора і фауна України':'Flora and fauna of Ukraine'},cat:{"Пам'ятні монети":'Commemorative coins',"Пам'ятні медалі":'Commemorative medals','Набори':'Sets','Банкноти':'Banknotes','Ролики обігових монет':'Circulation coin rolls','Зливки':'Bullion'}};
 const PLBL={'Аверс':'Obverse','Реверс':'Reverse','Паковання':'Packaging','Паковання (зворот)':'Packaging (back)'};
@@ -177,13 +169,10 @@ function ebtns(d,f,ti,rst){return ` <button class="ebtn" data-ef="${f}" title="$
 let curM=null;
 // --- Мої групи та налаштування вигляду (зберігаються в цьому браузері) ---
 const LS='mycollection_v1';
-let store={groups:[],ig:{},view:'grid',lang:'ua',main:{},hidden:[],deleted:[],seriesNames:{},coinSeries:{},edits:{}};
+let store={view:'grid',lang:'ua',main:{},hidden:[],deleted:[],seriesNames:{},coinSeries:{},edits:{}};
 try{const _s=JSON.parse(localStorage.getItem(LS));if(_s&&typeof _s==='object'){store=Object.assign(store,_s);
-if(store.ig){const _nig={};Object.keys(store.ig).forEach(k=>{const _nk=(/^\d+$/.test(k)&&DATA[+k])?DATA[+k].uid:k;_nig[_nk]=store.ig[k];});store.ig=_nig;}
 if(!Array.isArray(store.hidden))store.hidden=[];if(!Array.isArray(store.deleted))store.deleted=[];if(typeof store.main!=='object'||!store.main)store.main={};if(typeof store.seriesNames!=='object'||!store.seriesNames)store.seriesNames={};if(typeof store.coinSeries!=='object'||!store.coinSeries)store.coinSeries={};if(typeof store.edits!=='object'||!store.edits)store.edits={};if(store.lang!=='ua'&&store.lang!=='en')store.lang='ua';}}catch(e){}
 function save(){try{localStorage.setItem(LS,JSON.stringify(store));}catch(e){}}
-let gfilter='';
-const gchips=document.getElementById('gchips'),gchipsrow=document.getElementById('gchipsrow');
 let cat='';
 const cats=[...new Set(DATA.map(d=>d.cat))];
 function renderChips(){chips.innerHTML=`<button class="chip${cat===''?' on':''}" data-c="">${t('all')}</button>`+cats.map(c=>`<button class="chip${cat===c?' on':''}" data-c="${c}">${esc(dispCat(c))}</button>`).join('');}
@@ -196,7 +185,7 @@ function escA(s){return esc(s).replace(/"/g,'&quot;');}
 function renderSerSelect(){const cur=ser.value;ser.innerHTML=`<option value="">${t('allSeries')}</option>`+allSeries().map(s=>`<option value="${escA(s)}"${s===cur?' selected':''}>${esc(serDisp(s))}</option>`).join('');}
 renderSerSelect();
 function rows(){
-let r=DATA.filter(d=>!store.hidden.includes(d.uid)&&!store.deleted.includes(d.uid)&&(!cat||d.cat===cat)&&(!ser.value||effSer(d)===ser.value)&&(!gfilter||(store.ig[d.uid]||[]).includes(gfilter)));
+let r=DATA.filter(d=>!store.hidden.includes(d.uid)&&!store.deleted.includes(d.uid)&&(!cat||d.cat===cat)&&(!ser.value||effSer(d)===ser.value));
 const s=q.value.trim().toLowerCase();
 if(s)r=r.filter(d=>(dispName(d)+' '+(d.name_en||'')+' '+(d.desc_ua||'')+' '+(d.desc_en||'')).toLowerCase().includes(s));
 const k=sort.value;
@@ -263,21 +252,13 @@ murl.href=d.url||'#';murl.style.display=d.url?'':'none';
 murl.textContent=d.url&&d.url.includes('royalmint')?t('rmPage'):t('nbuPage');
 document.getElementById('mhide').textContent=t('hideB');
 document.getElementById('mdel').textContent=t('delB');
-const mg=document.getElementById('mgroups');
-if(store.groups.length){mg.style.display='';
-mg.innerHTML='<div class="gt">'+t('groupsL')+'</div>'+store.groups.map(g=>{const has=(store.ig[d.uid]||[]).includes(g.id);
-return `<label><input type="checkbox" data-gid="${g.id}"${has?' checked':''}>${esc(g.name)}</label>`;}).join('');
-mg.querySelectorAll('input').forEach(c=>c.onchange=()=>{const gid=c.dataset.gid;let arr=store.ig[d.uid]||[];
-arr=c.checked?[...new Set([...arr,gid])]:arr.filter(x=>x!==gid);
-if(arr.length)store.ig[d.uid]=arr;else delete store.ig[d.uid];save();});}
-else{mg.style.display='none';mg.innerHTML='';}
 const ms=document.getElementById('mseries'),_es=effSer(d),_opts=allSeries();
 if(!_opts.includes(_es))_opts.unshift(_es);
 ms.innerHTML='<div class="gt">'+t('seriesL')+'</div><select id="msel">'+_opts.map(s=>`<option value="${escA(s)}"${s===_es?' selected':''}>${esc(serDisp(s))}</option>`).join('')+'</select>'+(store.coinSeries[d.uid]?` <button class="gbtn" id="mserreset" style="padding:6px 10px;font-size:13px">${t('resetB')}</button>`:'');
 document.getElementById('msel').onchange=e=>{if(!editMode)return;const v=e.target.value;if(v===d.seriya)delete store.coinSeries[d.uid];else store.coinSeries[d.uid]=v;save();renderSerSelect();render();openM(d.id);};
 const _mr=document.getElementById('mserreset');if(_mr)_mr.onclick=()=>{if(!editMode)return;delete store.coinSeries[d.uid];save();renderSerSelect();render();openM(d.id);};
 document.getElementById('mhide').onclick=()=>{if(!editMode)return;if(confirm((store.lang==='en'?'Hide "':'Приховати «')+dispName(d)+(store.lang==='en'?'" from the collection?':'» з колекції?'))){if(!store.hidden.includes(d.uid))store.hidden.push(d.uid);save();curM=null;document.getElementById('mback').classList.remove('open');render();}};
-document.getElementById('mdel').onclick=()=>{if(!editMode)return;const _dn=dispName(d);if(confirm(store.lang==='en'?`Delete "${_dn}" from the collection permanently?\nThe item will disappear from the site in this browser. To remove it from the main list, send me the backup file ("Export" button).`:`Видалити «${_dn}» з колекції назавжди?\nПозиція зникне з сайту в цьому браузері. Щоб прибрати її з основного списку – надішліть мені файл-бекап (кнопка «Експорт»).`)){if(!store.deleted.includes(d.uid))store.deleted.push(d.uid);store.hidden=store.hidden.filter(u=>u!==d.uid);delete store.ig[d.uid];delete store.main[d.uid];delete store.edits[d.uid];save();curM=null;document.getElementById('mback').classList.remove('open');render();}};
+document.getElementById('mdel').onclick=()=>{if(!editMode)return;const _dn=dispName(d);if(confirm(store.lang==='en'?`Delete "${_dn}" from the collection permanently?\nThe item will disappear from the site in this browser. To remove it from the main list, send me the backup file ("Export" button).`:`Видалити «${_dn}» з колекції назавжди?\nПозиція зникне з сайту в цьому браузері. Щоб прибрати її з основного списку – надішліть мені файл-бекап (кнопка «Експорт»).`)){if(!store.deleted.includes(d.uid))store.deleted.push(d.uid);store.hidden=store.hidden.filter(u=>u!==d.uid);delete store.main[d.uid];delete store.edits[d.uid];save();curM=null;document.getElementById('mback').classList.remove('open');render();}};
 document.querySelector('#mback .modal').onclick=e=>{
 const be=e.target.closest('[data-ef]'),br=e.target.closest('[data-efreset]');
 if(be){if(!editMode)return;editField(d,be.dataset.ef);return;}
@@ -292,29 +273,6 @@ document.getElementById('mclose').onclick=()=>{curM=null;document.getElementById
 document.getElementById('mback').onclick=e=>{if(e.target.id==='mback'){curM=null;e.target.classList.remove('open');}};
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){curM=null;document.getElementById('mback').classList.remove('open');}});
 [q,ser,sort].forEach(el=>el.oninput=render);
-// --- Групи: чіпси-фільтр ---
-function renderGChips(){
-if(!store.groups.length){gchipsrow.style.display='none';gchips.innerHTML='';return;}
-gchipsrow.style.display='';
-gchips.innerHTML='<button class="chip'+(gfilter===''?' on':'')+'" data-g="">'+t('all')+'</button>'+store.groups.map(g=>`<button class="chip${gfilter===g.id?' on':''}" data-g="${g.id}">${esc(g.name)}</button>`).join('');}
-gchips.onclick=e=>{const b=e.target.closest('.chip');if(!b)return;gfilter=b.dataset.g;renderGChips();render();};
-// --- Групи: панель керування ---
-const gpanel=document.getElementById('gpanel'),gpanelrow=document.getElementById('gpanelrow');
-document.getElementById('gbtn').onclick=()=>{const open=gpanelrow.style.display==='none';gpanelrow.style.display=open?'':'none';if(open)renderGPanel();};
-function renderGPanel(){
-gpanel.innerHTML=`<div class="grow"><input type="text" id="gnew" placeholder="${t('gNewPh')}"><button class="gbtn" id="gadd">${t('gAdd')}</button></div><div class="glist">`
-+store.groups.map(g=>{const n=Object.keys(store.ig).filter(k=>(store.ig[k]||[]).includes(g.id)).length;
-return `<div class="gitem"><span>${esc(g.name)} <small>· ${n}</small></span><button data-ren="${g.id}" title="${t('gRenT')}">✎</button><button data-del="${g.id}" title="${t('gDelT')}">×</button></div>`;}).join('')
-+'</div><div style="color:var(--mut);font-size:12px;margin-top:8px">'+t('gNote')+'</div>';
-document.getElementById('gadd').onclick=()=>{const v=document.getElementById('gnew').value.trim();if(!v)return;
-store.groups.push({id:'g'+Date.now().toString(36),name:v});save();renderGPanel();renderGChips();};
-document.getElementById('gnew').onkeydown=e=>{if(e.key==='Enter')document.getElementById('gadd').click();};
-gpanel.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{const id=b.dataset.del;
-store.groups=store.groups.filter(g=>g.id!==id);
-Object.keys(store.ig).forEach(k=>{store.ig[k]=store.ig[k].filter(x=>x!==id);if(!store.ig[k].length)delete store.ig[k];});
-if(gfilter===id)gfilter='';save();renderGPanel();renderGChips();render();});
-gpanel.querySelectorAll('[data-ren]').forEach(b=>b.onclick=()=>{const id=b.dataset.ren;const g=store.groups.find(x=>x.id===id);
-const v=prompt(t('gNewName'),g.name);if(v&&v.trim()){g.name=v.trim();save();renderGPanel();renderGChips();}});}
 // --- Вигляд: сітка / список ---
 const vgrid=document.getElementById('vgrid'),vlist=document.getElementById('vlist');
 function setView(v){store.view=v;save();vgrid.classList.toggle('on',v==='grid');vlist.classList.toggle('on',v==='list');render();}
@@ -336,7 +294,7 @@ const ss=allSeries();
 spanel.innerHTML='<div style="color:var(--mut);font-size:13px;margin-bottom:8px">'+t('sTitle')+'</div><div class="glist">'
 +ss.map(s=>{const n=DATA.filter(d=>effSer(d)===s&&!store.hidden.includes(d.uid)&&!store.deleted.includes(d.uid)).length;
 const custom=store.seriesNames[s];
-return `<div class="gitem"><span>${esc(serDisp(s))}${custom?` <small>· ${esc(s)}</small>`:''} <small>· ${n}</small></span><button data-sren="${escA(s)}" title="${t('gRenT')}">✎</button>${custom?`<button data-sreset="${escA(s)}" title="${t('resetNameT')}">↺</button>`:''}</div>`;}).join('')+'</div>';
+return `<div class="gitem"><span>${esc(serDisp(s))}${custom?` <small>· ${esc(s)}</small>`:''} <small>· ${n}</small></span><button data-sren="${escA(s)}" title="${t('renT')}">✎</button>${custom?`<button data-sreset="${escA(s)}" title="${t('resetNameT')}">↺</button>`:''}</div>`;}).join('')+'</div>';
 spanel.querySelectorAll('[data-sren]').forEach(b=>b.onclick=()=>{const s=b.dataset.sren;const v=prompt(t('sNewName'),store.seriesNames[s]||s);if(v&&v.trim()&&v.trim()!==s){store.seriesNames[s]=v.trim();save();renderSerSelect();renderSPanel();render();}});
 spanel.querySelectorAll('[data-sreset]').forEach(b=>b.onclick=()=>{delete store.seriesNames[b.dataset.sreset];save();renderSerSelect();renderSPanel();render();});}
 // --- Експорт / імпорт налаштувань ---
@@ -344,7 +302,7 @@ document.getElementById('expbtn').onclick=()=>{const blob=new Blob([JSON.stringi
 const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='mycollection-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000);};
 document.getElementById('impfile').onchange=e=>{const f=e.target.files[0];if(!f)return;
 const rd=new FileReader();rd.onload=()=>{try{const s=JSON.parse(rd.result);
-if(s&&Array.isArray(s.groups)){store=Object.assign({groups:[],ig:{},view:'grid',lang:'ua',main:{},hidden:[],deleted:[],seriesNames:{},coinSeries:{},edits:{}},s);save();gfilter='';
+if(s&&typeof s==='object'){store=Object.assign({view:'grid',lang:'ua',main:{},hidden:[],deleted:[],seriesNames:{},coinSeries:{},edits:{}},s);delete store.groups;delete store.ig;save();
 vgrid.classList.toggle('on',store.view!=='list');vlist.classList.toggle('on',store.view==='list');
 applyLang();}else alert(t('badFile'));}catch(err){alert(t('badFile'));}};
 rd.readAsText(f);e.target.value='';};
@@ -363,7 +321,6 @@ const _sv=sort.value;
 sort.innerHTML=[['cat','sCat'],['year','sYear'],['name','sName'],['price','sPrice'],['tir','sTir']].map(([v,k])=>`<option value="${v}">${t(k)}</option>`).join('');
 sort.value=_sv;
 vgrid.title=t('gridV');vlist.title=t('listV');
-document.getElementById('gbtn').textContent=t('myGroups');
 sbtn.textContent=t('seriesB');
 hbtn.textContent=t('hiddenB');
 const _eb=document.getElementById('expbtn');_eb.textContent=t('exportB');_eb.title=t('exportT');
@@ -376,7 +333,7 @@ applyEditMode();
 document.getElementById('foott').textContent=t('footer');
 langUa.classList.toggle('on',store.lang==='ua');langEn.classList.toggle('on',store.lang==='en');
 vgrid.classList.toggle('on',store.view!=='list');vlist.classList.toggle('on',store.view==='list');
-renderSerSelect();renderChips();renderGChips();render();
+renderSerSelect();renderChips();render();
 if(curM&&document.getElementById('mback').classList.contains('open'))openM(curM);}
 // --- Режим редагування під кодом (у коді лише sha256 хеш, не сам код) ---
 const EDIT_CODE_HASH="fba45fac3aeb009a4c5ec2aa18422d80703b7d3b3dce80be6a71bbb0f47ebf17";
