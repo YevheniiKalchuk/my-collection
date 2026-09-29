@@ -46,6 +46,8 @@ select{background:var(--card);border:1px solid var(--line);color:var(--txt);bord
 .thwrap{position:relative;display:inline-block}
 .mstar{position:absolute;right:2px;bottom:2px;background:rgba(0,0,0,.6);border:1px solid var(--line);color:#888;border-radius:6px;cursor:pointer;font-size:12px;padding:1px 5px;line-height:1.4}
 .mstar.on{color:var(--gold2);border-color:var(--gold)}
+.ebtn{background:none;border:none;color:var(--mut);cursor:pointer;font-size:13px;padding:2px 4px;vertical-align:middle}
+.ebtn:hover{color:var(--gold2)}
 .viewbtns{display:flex;gap:6px}
 .vbtn{background:var(--card);border:1px solid var(--line);color:var(--mut);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:16px;line-height:1}
 .vbtn.on{color:var(--gold2);border-color:var(--gold)}
@@ -91,9 +93,9 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:26px 16px;borde
 <h1>Моя нумізматична колекція</h1>
 <div class="sub">Монети, медалі, банкноти та зливки моєї колекції</div>
 <div class="stats">
-<div class="stat"><b>83</b><span>позицій</span></div>
-<div class="stat"><b>33 654&nbsp;₴</b><span>вартість</span></div>
-<div class="stat"><b>2017–2026</b><span>роки випуску</span></div>
+<div class="stat"><b id="stcount">83</b><span>позицій</span></div>
+<div class="stat"><b id="sttotal">33 654&nbsp;₴</b><span>вартість</span></div>
+<div class="stat"><b id="styears">2017–2026</b><span>роки випуску</span></div>
 </div>
 </header>
 <div class="toolbar"><div class="trow">
@@ -140,10 +142,10 @@ ser=document.getElementById('ser'),sort=document.getElementById('sort'),
 chips=document.getElementById('chips'),count=document.getElementById('count');
 // --- Мої групи та налаштування вигляду (зберігаються в цьому браузері) ---
 const LS='mycollection_v1';
-let store={groups:[],ig:{},view:'grid',main:{},hidden:[],deleted:[],seriesNames:{},coinSeries:{}};
+let store={groups:[],ig:{},view:'grid',main:{},hidden:[],deleted:[],seriesNames:{},coinSeries:{},edits:{}};
 try{const _s=JSON.parse(localStorage.getItem(LS));if(_s&&typeof _s==='object'){store=Object.assign(store,_s);
 if(store.ig){const _nig={};Object.keys(store.ig).forEach(k=>{const _nk=(/^\d+$/.test(k)&&DATA[+k])?DATA[+k].uid:k;_nig[_nk]=store.ig[k];});store.ig=_nig;}
-if(!Array.isArray(store.hidden))store.hidden=[];if(!Array.isArray(store.deleted))store.deleted=[];if(typeof store.main!=='object'||!store.main)store.main={};if(typeof store.seriesNames!=='object'||!store.seriesNames)store.seriesNames={};if(typeof store.coinSeries!=='object'||!store.coinSeries)store.coinSeries={};}}catch(e){}
+if(!Array.isArray(store.hidden))store.hidden=[];if(!Array.isArray(store.deleted))store.deleted=[];if(typeof store.main!=='object'||!store.main)store.main={};if(typeof store.seriesNames!=='object'||!store.seriesNames)store.seriesNames={};if(typeof store.coinSeries!=='object'||!store.coinSeries)store.coinSeries={};if(typeof store.edits!=='object'||!store.edits)store.edits={};}}catch(e){}
 function save(){try{localStorage.setItem(LS,JSON.stringify(store));}catch(e){}}
 let gfilter='';
 const gchips=document.getElementById('gchips'),gchipsrow=document.getElementById('gchipsrow');
@@ -169,22 +171,31 @@ if(k==='price')r=[...r].sort((a,b)=>b.price-a.price);
 if(k==='tir')r=[...r].sort((a,b)=>(parseInt(b.tyrazh)||0)-(parseInt(a.tyrazh)||0));
 return r;}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
-function metaLine(d){return `${d.rik} · ${esc(d.metal_short)} · ${d.nominal==='—'?(d.cat==='Зливки'?'зливок':'медаль'):'номінал '+d.nominal+' ₴'}`;}
+function metaLine(d){const _n=effV(d,'nominal');return `${effV(d,'rik')} · ${esc(shortMetal(effV(d,'metal')))} · ${_n==='—'?(d.cat==='Зливки'?'зливок':'медаль'):'номінал '+_n+' ₴'}`;}
 function cover(d){return (d.photos[store.main[d.uid]]||d.photos[0]).src;}
+function effV(d,f){const o=store.edits[d.uid];return (o&&o[f]!==undefined&&o[f]!=='')?o[f]:d[f];}
+function effPrice(d){const o=store.edits[d.uid];return (o&&typeof o.price==='number')?o.price:d.price;}
+function shortMetal(m){return m==='—'?'—':String(m).split('(')[0].trim();}
 function render(){
 const r=rows();
 count.textContent=`Показано ${r.length} з ${DATA.length - store.hidden.length - store.deleted.length}`;
+{const _vis=DATA.filter(x=>!store.hidden.includes(x.uid)&&!store.deleted.includes(x.uid));
+const _tot=_vis.reduce((a,x)=>a+effPrice(x)*x.qty,0);
+const _yrs=_vis.map(x=>effV(x,'rik')).filter(y=>y&&y!=='—').sort();
+document.getElementById('stcount').textContent=_vis.length;
+document.getElementById('sttotal').innerHTML=_tot.toLocaleString('uk-UA')+'&nbsp;₴';
+document.getElementById('styears').textContent=_yrs.length?(_yrs[0]+'–'+_yrs[_yrs.length-1]):'—';}
 const hbtn0=document.getElementById('hbtn');if(hbtn0)hbtn0.style.display=store.hidden.length?'':'none';
 const list=store.view==='list';
 grid.classList.toggle('list',list);
 if(list){
-grid.innerHTML=r.map(d=>`<div class="listrow" data-id="${d.id}"><img loading="lazy" src="${cover(d)}" alt=""><div><div class="lname">${esc(d.name)}</div><div class="lmeta">${metaLine(d)}</div></div><div class="lprice">${d.price>0?d.price+' ₴':'ціна —'}</div></div>`).join('');
+grid.innerHTML=r.map(d=>`<div class="listrow" data-id="${d.id}"><img loading="lazy" src="${cover(d)}" alt=""><div><div class="lname">${esc(effV(d,'name'))}</div><div class="lmeta">${metaLine(d)}</div></div><div class="lprice">${effPrice(d)>0?effPrice(d)+' ₴':'ціна —'}</div></div>`).join('');
 }else{
 grid.innerHTML=r.map(d=>`<div class="card" data-id="${d.id}">
-<div class="ph"><img loading="lazy" src="${cover(d)}" alt="${esc(d.name)}"></div>
-<div class="info"><div class="name">${esc(d.name)}</div>
+<div class="ph"><img loading="lazy" src="${cover(d)}" alt="${esc(effV(d,'name'))}"></div>
+<div class="info"><div class="name">${esc(effV(d,'name'))}</div>
 <div class="meta">${metaLine(d)}</div>
-<div class="price">${d.price>0?d.price+' ₴':'ціна —'} <small>× ${d.qty}</small></div></div></div>`).join('');
+<div class="price">${effPrice(d)>0?effPrice(d)+' ₴':'ціна —'} <small>× ${d.qty}</small></div></div></div>`).join('');
 }
 grid.querySelectorAll('[data-id]').forEach(c=>c.onclick=()=>openM(+c.dataset.id));}
 const F=[['Метал','metal'],['Маса, г','masa'],['Діаметр, мм','diametr'],['Гурт','gurt'],['Якість карбування','yakist'],['Тираж, шт.','tyrazh'],['Рік випуску','rik'],['Серія','seriya'],['Номінал','nominal'],['Художник(и)','hud'],['Скульптор(и)','skul']];
@@ -201,11 +212,12 @@ th.querySelectorAll('img').forEach(x=>x.classList.toggle('on',+x.dataset.j===j))
 th.querySelectorAll('.mstar').forEach(x=>x.classList.toggle('on',+x.dataset.j===j));
 render();});}
 else{th.style.display='none';th.innerHTML='';}
-document.getElementById('mname').textContent=d.name;
+document.getElementById('mname').innerHTML=`${esc(effV(d,'name'))} <button class="ebtn" data-ef="name" title="Редагувати назву">✎</button>${(store.edits[d.uid]&&store.edits[d.uid].name!==undefined)?' <button class="ebtn" data-efreset="name" title="Скинути назву">↺</button>':''}`;
 document.getElementById('mcat').textContent=d.cat;
-document.getElementById('mtab').innerHTML=F.map(([k,v])=>`<tr><td class="k">${k}</td><td>${v==='seriya'?esc(serName(effSer(d))):esc(d[v])}</td></tr>`).join('')
-+(d.note?`<tr><td class="k">Примітка</td><td>${esc(d.note)}</td></tr>`:'');
-document.getElementById('mprice').textContent=`Ціна: ${d.price>0?d.price+' ₴':'—'} · кількість: ${d.qty}`;
+document.getElementById('mtab').innerHTML=F.map(([k,v])=>{const _vv=v==='seriya'?serName(effSer(d)):effV(d,v);const _ov=store.edits[d.uid]&&store.edits[d.uid][v]!==undefined;return `<tr><td class="k">${k}</td><td>${esc(_vv)}${v==='seriya'?'':` <button class="ebtn" data-ef="${v}" title="Редагувати">✎</button>${_ov?` <button class="ebtn" data-efreset="${v}" title="Скинути">↺</button>`:''}`}</td></tr>`;}).join('')
++`<tr><td class="k">Примітка</td><td>${esc(effV(d,'note')||'—')} <button class="ebtn" data-ef="note" title="Редагувати">✎</button>${(store.edits[d.uid]&&store.edits[d.uid].note!==undefined)?' <button class="ebtn" data-efreset="note" title="Скинути">↺</button>':''}</td></tr>`;
+const _ep=effPrice(d);
+document.getElementById('mprice').innerHTML=`Ціна: ${_ep>0?_ep+' ₴':'—'} <button class="ebtn" data-ef="price" title="Редагувати ціну">✎</button>${(store.edits[d.uid]&&store.edits[d.uid].price!==undefined)?' <button class="ebtn" data-efreset="price" title="Скинути ціну">↺</button>':''} · кількість: ${d.qty}`;
 const murl=document.getElementById('murl');
 murl.href=d.url||'#';murl.style.display=d.url?'':'none';
 murl.textContent=d.url&&d.url.includes('royalmint')?'Сторінка на сайті Royal Mint':'Сторінка на сайті НБУ';
@@ -223,7 +235,16 @@ ms.innerHTML='<div class="gt">Серія:</div><select id="msel">'+_opts.map(s=>
 document.getElementById('msel').onchange=e=>{const v=e.target.value;if(v===d.seriya)delete store.coinSeries[d.uid];else store.coinSeries[d.uid]=v;save();renderSerSelect();render();openM(d.id);};
 const _mr=document.getElementById('mserreset');if(_mr)_mr.onclick=()=>{delete store.coinSeries[d.uid];save();renderSerSelect();render();openM(d.id);};
 document.getElementById('mhide').onclick=()=>{if(confirm('Приховати «'+d.name+'» з колекції?')){if(!store.hidden.includes(d.uid))store.hidden.push(d.uid);save();document.getElementById('mback').classList.remove('open');render();}};
-document.getElementById('mdel').onclick=()=>{if(confirm('Видалити «'+d.name+'» з колекції назавжди?\nПозиція зникне з сайту в цьому браузері. Щоб прибрати її з основного списку – надішліть мені файл-бекап (кнопка «Експорт»).')){if(!store.deleted.includes(d.uid))store.deleted.push(d.uid);store.hidden=store.hidden.filter(u=>u!==d.uid);delete store.ig[d.uid];delete store.main[d.uid];save();document.getElementById('mback').classList.remove('open');render();}};
+document.getElementById('mdel').onclick=()=>{if(confirm('Видалити «'+d.name+'» з колекції назавжди?\nПозиція зникне з сайту в цьому браузері. Щоб прибрати її з основного списку – надішліть мені файл-бекап (кнопка «Експорт»).')){if(!store.deleted.includes(d.uid))store.deleted.push(d.uid);store.hidden=store.hidden.filter(u=>u!==d.uid);delete store.ig[d.uid];delete store.main[d.uid];delete store.edits[d.uid];save();document.getElementById('mback').classList.remove('open');render();}};
+document.querySelector('#mback .modal').onclick=e=>{
+const be=e.target.closest('[data-ef]'),br=e.target.closest('[data-efreset]');
+if(be){editField(d,be.dataset.ef);return;}
+if(br){const f=br.dataset.efreset;if(store.edits[d.uid]){delete store.edits[d.uid][f];if(!Object.keys(store.edits[d.uid]).length)delete store.edits[d.uid];}save();render();openM(d.id);}};
+function editField(d,f){
+const o=store.edits[d.uid]||{};
+if(f==='price'){const v=prompt('Нова ціна, грн',o.price!==undefined?o.price:d.price);if(v===null)return;const n=parseFloat(String(v).replace(/\s/g,'').replace(',','.'));if(isNaN(n)||n<0){alert('Введіть число 0 або більше');return;}store.edits[d.uid]=Object.assign({},o,{price:n});}
+else{const v=prompt('Нове значення',(o[f]!==undefined?o[f]:d[f])||'');if(v===null)return;store.edits[d.uid]=Object.assign({},o,{[f]:v.trim()});}
+save();render();openM(d.id);}
 document.getElementById('mback').classList.add('open');}
 document.getElementById('mclose').onclick=()=>document.getElementById('mback').classList.remove('open');
 document.getElementById('mback').onclick=e=>{if(e.target.id==='mback')e.target.classList.remove('open');};
@@ -281,7 +302,7 @@ document.getElementById('expbtn').onclick=()=>{const blob=new Blob([JSON.stringi
 const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='mycollection-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000);};
 document.getElementById('impfile').onchange=e=>{const f=e.target.files[0];if(!f)return;
 const rd=new FileReader();rd.onload=()=>{try{const s=JSON.parse(rd.result);
-if(s&&Array.isArray(s.groups)){store=Object.assign({groups:[],ig:{},view:'grid',main:{},hidden:[],deleted:[],seriesNames:{},coinSeries:{}},s);save();gfilter='';
+if(s&&Array.isArray(s.groups)){store=Object.assign({groups:[],ig:{},view:'grid',main:{},hidden:[],deleted:[],seriesNames:{},coinSeries:{},edits:{}},s);save();gfilter='';
 vgrid.classList.toggle('on',store.view!=='list');vlist.classList.toggle('on',store.view==='list');
 renderSerSelect();renderGChips();render();}else alert('Невірний файл бекапу');}catch(err){alert('Невірний файл бекапу');}};
 rd.readAsText(f);e.target.value='';};
