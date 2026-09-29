@@ -208,8 +208,7 @@ arr=c.checked?[...new Set([...arr,gid])]:arr.filter(x=>x!==gid);
 if(arr.length)store.ig[d.uid]=arr;else delete store.ig[d.uid];save();});}
 else{mg.style.display='none';mg.innerHTML='';}
 document.getElementById('mhide').onclick=()=>{if(confirm('Приховати «'+d.name+'» з колекції?')){if(!store.hidden.includes(d.uid))store.hidden.push(d.uid);save();document.getElementById('mback').classList.remove('open');render();}};
-document.getElementById('mdel').onclick=()=>{if(confirm('Видалити «'+d.name+'» з колекції назавжди?
-Позиція зникне з сайту в цьому браузері. Щоб прибрати її з основного списку – надішліть мені файл-бекап (кнопка «Експорт»).')){if(!store.deleted.includes(d.uid))store.deleted.push(d.uid);store.hidden=store.hidden.filter(u=>u!==d.uid);delete store.ig[d.uid];delete store.main[d.uid];save();document.getElementById('mback').classList.remove('open');render();}};
+document.getElementById('mdel').onclick=()=>{if(confirm('Видалити «'+d.name+'» з колекції назавжди?\nПозиція зникне з сайту в цьому браузері. Щоб прибрати її з основного списку – надішліть мені файл-бекап (кнопка «Експорт»).')){if(!store.deleted.includes(d.uid))store.deleted.push(d.uid);store.hidden=store.hidden.filter(u=>u!==d.uid);delete store.ig[d.uid];delete store.main[d.uid];save();document.getElementById('mback').classList.remove('open');render();}};
 document.getElementById('mback').classList.add('open');}
 document.getElementById('mclose').onclick=()=>document.getElementById('mback').classList.remove('open');
 document.getElementById('mback').onclick=e=>{if(e.target.id==='mback')e.target.classList.remove('open');};
